@@ -1,14 +1,62 @@
 # openclawd-zai-skills
 
-This repository currently contains one OpenClaw skill: `zai-vision-mcp`.
+OpenClaw skills for Z.AI services.
 
-It is a self-contained OpenClaw skill wrapper for Zhipu's vision MCP server.
+This repository currently contains one published skill:
+
+- `zai-vision-mcp`: a self-contained OpenClaw skill wrapper for Zhipu's vision MCP server
+
+It is designed to be cloned, dropped into a skills directory, and used without adding local project dependencies.
+
+## Why this exists
+
+The upstream Z.AI MCP server works, but in real OpenClaw environments there are a few operational details to handle cleanly:
+
+- long-running stdio through `npx` is brittle
+- sandboxed runs may not be allowed to write `~/.zai/...log`
+- tool schemas can evolve over time
+
+This wrapper handles those details so the skill behaves more predictably in local and sandboxed agent runs.
+
+## Features
+
+- Wraps the official `@z_ai/mcp-server`
+- Resolves and launches the server entry directly with `node`
+- Uses a writable temp log path by default
+- Auto-installs the MCP server package into a temp cache if needed
+- Auto-selects an appropriate vision tool when `--tool` is omitted
+- Supports image analysis, OCR, error screenshot diagnosis, diagram reading, chart analysis, UI diffing, UI-to-artifact, and video analysis
+
+## Repo layout
+
+```text
+openclawd-zai-skills/
+  README.md
+  SKILL.md
+  scripts/
+    call_zai_vision_mcp.mjs
+```
+
+## Quick start
+
+Clone this repo anywhere, then either:
+
+- move the whole directory into an OpenClaw skills directory
+- or keep it where it is and add its parent directory to `skills.load.extraDirs`
 
 You can move this whole directory into any OpenClaw skill location later:
 
-- `<workspace>/skills/openclaw-zai-vision-mcp-skill`
-- `~/.openclaw/skills/openclaw-zai-vision-mcp-skill`
+- `<workspace>/skills/openclawd-zai-skills`
+- `~/.openclaw/skills/openclawd-zai-skills`
 - or keep it anywhere and load it via `skills.load.extraDirs`
+
+Required environment:
+
+- `Z_AI_API_KEY`
+
+Optional environment:
+
+- `Z_AI_MODE=ZHIPU` or `Z_AI_MODE=ZAI`
 
 ## What it wraps
 
@@ -18,21 +66,7 @@ The wrapper resolves and starts the official Z.AI vision MCP server entry direct
 node .../@z_ai/mcp-server/build/index.js
 ```
 
-Expected environment:
-
-- `Z_AI_API_KEY` (required)
-- `Z_AI_MODE` (`ZHIPU` by default, or `ZAI`)
-- `ZAI_MCP_LOG_PATH` is auto-set to a writable file under `/tmp` unless you override it
-
-## Files
-
-```text
-openclawd-zai-skills/
-  README.md
-  SKILL.md
-  scripts/
-    call_zai_vision_mcp.mjs
-```
+`ZAI_MCP_LOG_PATH` is auto-set to a writable file under `/tmp` unless you override it.
 
 ## Local smoke test
 
